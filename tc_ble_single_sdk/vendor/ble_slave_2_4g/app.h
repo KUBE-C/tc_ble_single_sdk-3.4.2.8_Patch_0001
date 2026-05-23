@@ -53,6 +53,12 @@ void user_init_deepRetn(void);
  */
 void main_loop(void);
 
+#if (SOFT_UART_ENABLE)
+void app_soft_uart_init(void);
+void app_soft_uart_send(u8 *buf, u8 len);
+int app_soft_uart_pop(u8 *out, int out_max);
+#endif
+
 
 
 

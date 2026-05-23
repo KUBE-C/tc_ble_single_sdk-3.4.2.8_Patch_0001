@@ -41,8 +41,8 @@
 #define  	SOFT_UART_ENABLE                       1
 
 #define 	SOFT_UART_BAUD_RATE                     9600
-#define 	SOFT_UART_TX_IO                   		GPIO_PA4
-#define 	SOFT_UART_RX_IO                   		GPIO_PB4
+#define 	SOFT_UART_TX_IO                   		GPIO_PD7
+#define 	SOFT_UART_RX_IO                   		GPIO_PB7
 
 
 

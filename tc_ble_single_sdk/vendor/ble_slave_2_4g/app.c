@@ -26,6 +26,11 @@
 #include "stack/ble/ble.h"
 
 #include "app_config.h"
+
+#if (SOFT_UART_ENABLE)
+#include "drivers/B85/driver_ext/software_uart.h"
+#endif
+
 #include "app.h"
 #include "app_ui.h"
 #include "app_att.h"
@@ -86,6 +91,77 @@ _attribute_data_retention_	my_fifo_t	blt_txfifo = {
 												0,
 												0,
 												blt_txfifo_b,};
+
+#if (SOFT_UART_ENABLE)
+#define APP_SOFT_UART_RX_FIFO_SIZE		80
+#define APP_SOFT_UART_RX_FIFO_NUM		4
+
+_attribute_data_retention_ u8 soft_uart_rx_buf[APP_SOFT_UART_RX_FIFO_SIZE * APP_SOFT_UART_RX_FIFO_NUM] = {0};
+_attribute_data_retention_ my_fifo_t soft_uart_rx_fifo = {
+	APP_SOFT_UART_RX_FIFO_SIZE,
+	APP_SOFT_UART_RX_FIFO_NUM,
+	0,
+	0,
+	soft_uart_rx_buf,
+};
+
+static int app_soft_uart_rx_cb(void)
+{
+	if (((soft_uart_rx_fifo.wptr - soft_uart_rx_fifo.rptr) & 255) < soft_uart_rx_fifo.num) {
+		soft_uart_rx_fifo.wptr++;
+		unsigned char *p = soft_uart_rx_fifo.p + (soft_uart_rx_fifo.wptr & (soft_uart_rx_fifo.num - 1)) * soft_uart_rx_fifo.size;
+		soft_uart_RxSetFifo(p, soft_uart_rx_fifo.size);
+	}
+	return 0;
+}
+
+void app_soft_uart_init(void)
+{
+	soft_uart_rx_handler(app_soft_uart_rx_cb);
+
+	extern int blt_send_adv(void);
+	extern void blc_ll_SoftUartisRfState(void);
+	soft_uart_sdk_adv_handler(blt_send_adv);
+	soft_uart_SoftUartisRfState_handler(blc_ll_SoftUartisRfState);
+
+	soft_uart_RxSetFifo(soft_uart_rx_fifo.p, soft_uart_rx_fifo.size);
+	soft_uart_init();
+}
+
+void app_soft_uart_send(u8 *buf, u8 len)
+{
+	soft_uart_send(buf, len);
+}
+
+int app_soft_uart_pop(u8 *out, int out_max)
+{
+	if (soft_uart_rx_fifo.wptr == soft_uart_rx_fifo.rptr) {
+		return 0;
+	}
+
+	u8 *p = soft_uart_rx_fifo.p + (soft_uart_rx_fifo.rptr & (soft_uart_rx_fifo.num - 1)) * soft_uart_rx_fifo.size;
+	int n = p[0];
+	if (n > out_max) {
+		n = out_max;
+	}
+	for (int i = 0; i < n; i++) {
+		out[i] = p[4 + i];
+	}
+	soft_uart_rx_fifo.rptr++;
+	return n;
+}
+
+void app_soft_uart_task(void)
+{
+#if defined(SOFT_UART_ECHO_ENABLE) && (SOFT_UART_ECHO_ENABLE)
+	while (soft_uart_rx_fifo.wptr != soft_uart_rx_fifo.rptr) {
+		u8 *p = soft_uart_rx_fifo.p + (soft_uart_rx_fifo.rptr & (soft_uart_rx_fifo.num - 1)) * soft_uart_rx_fifo.size;
+		soft_uart_send(&p[4], p[0]);
+		soft_uart_rx_fifo.rptr++;
+	}
+#endif
+}
+#endif
 
 
 
@@ -412,6 +488,11 @@ _attribute_no_inline_ void user_init_normal(void)
 		tlkapi_debug_init();
 		blc_debug_enableStackLog(STK_LOG_DISABLE);
 	#endif
+
+	#if (SOFT_UART_ENABLE)
+		app_soft_uart_init();
+	#endif
+
 
 	blc_readFlashSize_autoConfigCustomFlashSector();
 
@@ -763,9 +844,9 @@ _attribute_no_inline_ void main_loop(void)
 
     ////////////////////////////////////// Concurrent Mode Process /////////////////////////////////
     blt_concurrent_proc();
+
+
+	#if (SOFT_UART_ENABLE)
+		app_soft_uart_task();
+	#endif
 }
-
-
-
-
-

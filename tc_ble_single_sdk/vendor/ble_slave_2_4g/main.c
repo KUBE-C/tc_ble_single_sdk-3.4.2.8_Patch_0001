@@ -27,6 +27,10 @@
 #include "app.h"
 #include "./2_4g_test/2p4g_common.h"
 
+#if (SOFT_UART_ENABLE)
+#include "drivers/B85/driver_ext/software_uart.h"
+#endif
+
 volatile unsigned char irq_bleModeFlag = 1;
 
 /**
@@ -36,6 +40,11 @@ volatile unsigned char irq_bleModeFlag = 1;
  */
 _attribute_ram_code_ void irq_handler(void)
 {
+
+#if (SOFT_UART_ENABLE)
+    soft_uart_irq_handler();
+#endif
+
 #if (TEST_2P4G_MODE)
     if(!irq_bleModeFlag)
     {
@@ -115,7 +124,10 @@ _attribute_ram_code_ int main (void)    //must run in ramcode
     user_init_normal();
 
 #if (RF_DEBUG_IO_ENABLE)
+    #if (UART_PRINT_DEBUG_ENABLE && (DEBUG_INFO_TX_PIN == GPIO_PA5))
+    #else
     debug_config();
+    #endif
 #endif
 
     irq_enable();
@@ -131,4 +143,3 @@ _attribute_ram_code_ int main (void)    //must run in ramcode
 		main_loop();
 	}
 }
-

@@ -51,7 +51,7 @@
 #define TL_TPLL_PRX                                 0x40
 #define TL_TPLL_PTX                                 0x41
 
-#define TEST_2P4G_MODE                              TPSLL_STX2RX
+#define TEST_2P4G_MODE                              TPSLL_STX2RX//NO_TEST_2P4G
 
 /**
  *  @brief  Concurrent parameter settings
@@ -73,8 +73,8 @@
 #define APP_BATT_CHECK_ENABLE							0
 
 ///////////////////////// DEBUG  Configuration ////////////////////////////////////////////////
-#define RF_DEBUG_IO_ENABLE                  1
-#define DEBUG_GPIO_ENABLE					1
+#define RF_DEBUG_IO_ENABLE                  0  // 禁用RF DEBUG IO，避免影响GPIO和时序
+#define DEBUG_GPIO_ENABLE					0
 #define UART_PRINT_DEBUG_ENABLE				1
 #define APP_LOG_EN							1
 #define APP_SMP_LOG_EN						1
@@ -85,6 +85,17 @@
 #define APP_FLASH_INIT_LOG_EN				1
 #define APP_FLASH_PROT_LOG_EN				1
 #define APP_BATT_CHECK_LOG_EN				1
+
+#define FEATURE_SOF_UART_ENABLE				1
+#if (FEATURE_SOF_UART_ENABLE)
+#define SOFT_UART_ENABLE                 	1
+#define SOFT_UART_BAUD_RATE              	9600
+#define SOFT_UART_TX_IO                  	GPIO_PD7
+#define SOFT_UART_RX_IO                  	GPIO_PB7
+#define SOFT_UART_ECHO_ENABLE				1
+
+
+#endif
 
 /////////////////////// Sample Board Select Configuration ///////////////////////////////
 #if (__PROJECT_8258_BLE_SLAVE_2P4G__)
@@ -102,7 +113,7 @@
 
 ///////////////////////// UI Configuration ////////////////////////////////////////////////////
 #define	UI_KEYBOARD_ENABLE								0
-#define	UI_LED_ENABLE									1
+#define	UI_LED_ENABLE									0
 #define	UI_BUTTON_ENABLE								0
 
 #if (UI_KEYBOARD_ENABLE)
@@ -131,7 +142,11 @@
 
 
 ///////////////////////// System Clock  Configuration /////////////////////////////////////////
+#if (FEATURE_SOF_UART_ENABLE)
+#define CLOCK_SYS_CLOCK_HZ  								48000000
+#else
 #define CLOCK_SYS_CLOCK_HZ  								16000000
+#endif
 
 
 /////////////////// watchdog  //////////////////////////////
@@ -141,10 +156,10 @@
 
 /////////////////////////////////////// PRINT DEBUG INFO ///////////////////////////////////////
 #if (UART_PRINT_DEBUG_ENABLE)
-	#define DEBUG_INFO_TX_PIN           	GPIO_PB1
-	#define PULL_WAKEUP_SRC_PB1         	PM_PIN_PULLUP_10K
-	#define PB1_OUTPUT_ENABLE         		1
-	#define PB1_DATA_OUT                    1
+	#define DEBUG_INFO_TX_PIN           	GPIO_PA5//PB2 GPIO_PD7 GPIO_PA5
+	#define PULL_WAKEUP_SRC_PA5         	PM_PIN_PULLUP_10K
+	#define PA5_OUTPUT_ENABLE         		1
+	#define PA5_DATA_OUT                    1
 #endif
 
 #include "vendor/common/default_config.h"

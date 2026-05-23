@@ -91,7 +91,7 @@ void concurrent_irq_handler(void)
       }
     #endif
     }
-    irq_clr_sel_src(FLD_IRQ_ALL);
+    irq_clr_sel_src(FLD_IRQ_ZB_RT_EN);
 }
 
 void tpsll_config_init(void)
@@ -159,7 +159,9 @@ int app_mainloop_2p4g(unsigned int  wakeup_tick)
 
         if (rx_flag) {
             rx_flag = 0;
+            #if (UI_LED_ENABLE)
             gpio_toggle(GPIO_LED_GREEN);
+            #endif
 //            WaitMs(100);
             payload[4]++;
             tpsll_tx_write_payload((unsigned char *)payload,payload_len);

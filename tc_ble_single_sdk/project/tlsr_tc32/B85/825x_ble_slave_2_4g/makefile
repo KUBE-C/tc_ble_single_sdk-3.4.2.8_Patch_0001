@@ -43,7 +43,7 @@ all: tc_ble_single_sdk_B85.elf secondary-outputs
 tc_ble_single_sdk_B85.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: TC32 C Linker'
-	tc32-elf-ld --gc-sections -L"C:\Projects\BLE_XC\code\tc_ble_single_sdk-3.4.2.8_Patch_0001\tc_ble_single_sdk\proj_lib" -L"C:\Projects\BLE_XC\code\tc_ble_single_sdk-3.4.2.8_Patch_0001\tc_ble_single_sdk\application\audio" -T ../boot.link -o"tc_ble_single_sdk_B85.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	tc32-elf-ld --gc-sections -L"C:\Projects\BLE_XC\tc_ble_single_sdk-3.4.2.8_Patch_0001\tc_ble_single_sdk\proj_lib" -L"C:\Projects\BLE_XC\tc_ble_single_sdk-3.4.2.8_Patch_0001\tc_ble_single_sdk\application\audio" -T ../boot.link -o"tc_ble_single_sdk_B85.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build
@@ -72,7 +72,7 @@ clean:
 	-@echo ' '
 
 post-build:
-	-"C:\Projects\BLE_XC\code\tc_ble_single_sdk-3.4.2.8_Patch_0001\tc_ble_single_sdk\project\tlsr_tc32\B85/../../../script/tl_check_fw/tl_check_fw.sh"   825x_ble_slave_2_4g   tc_ble_single_sdk_B85
+	-"C:\Projects\BLE_XC\tc_ble_single_sdk-3.4.2.8_Patch_0001\tc_ble_single_sdk\project\tlsr_tc32\B85/../../../script/tl_check_fw/tl_check_fw.sh"   825x_ble_slave_2_4g   tc_ble_single_sdk_B85
 	-@echo ' '
 
 secondary-outputs: $(LST) $(FLASH_IMAGE) $(SIZEDUMMY)
